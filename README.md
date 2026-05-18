@@ -1,4 +1,4 @@
-# eShopOnContainers-NestJS
+# NestJS Version of eShopOnContainers
 
 I built this repository as a **personal study project**. It is inspired by Microsoft’s [dotnet/eShop](https://github.com/dotnet/eShop) sample and by the ideas in [Introducing the eShopOnContainers reference application](https://learn.microsoft.com/pt-br/dotnet/architecture/cloud-native/introduce-eshoponcontainers-reference-app) (bounded contexts, BFF gateways, database-per-service, integration events, and cloud-native practices).
 
