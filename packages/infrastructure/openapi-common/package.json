@@ -1,0 +1,31 @@
+{
+  "name": "@eshop/openapi-common",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Shared Swagger document builder for Nest HTTP services.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/swagger": "^11.0.0"
+  },
+  "dependencies": {
+    "@nestjs/swagger": "^11.4.3"
+  },
+  "devDependencies": {
+    "@nestjs/common": "^11.1.21",
+    "@nestjs/core": "^11.1.21",
+    "typescript": "^6.0.3"
+  }
+}

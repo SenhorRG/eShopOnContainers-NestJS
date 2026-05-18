@@ -1,0 +1,57 @@
+{{- if .Values.prismaMigrate.enabled }}
+{{- range $name, $job := .Values.prismaMigrate.services }}
+{{- if $job.enabled }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "eshop-nestjs.serviceFullname" (dict "root" $ "name" (printf "migrate-%s" $name)) }}
+  labels:
+    {{- include "eshop-nestjs.labels" $ | nindent 4 }}
+    app.kubernetes.io/name: prisma-migrate
+    app.kubernetes.io/component: {{ $name }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  backoffLimit: {{ $.Values.prismaMigrate.backoffLimit }}
+  ttlSecondsAfterFinished: {{ $.Values.prismaMigrate.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+        app.kubernetes.io/name: prisma-migrate
+        app.kubernetes.io/component: {{ $name }}
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+        - name: migrate
+          image: {{ include "eshop-nestjs.image" (dict "root" $ "svc" $job) }}
+          imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
+          command:
+            - npx
+            - prisma
+            - migrate
+            - deploy
+            - --schema
+            - prisma/schema.prisma
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: {{ $job.databaseUrlEnv }}
+              {{- if $job.databaseUrl }}
+              value: {{ $job.databaseUrl | quote }}
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $job.secretName | default (printf "%s-db" $name) }}
+                  key: {{ $job.secretKey | default "databaseUrl" }}
+              {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

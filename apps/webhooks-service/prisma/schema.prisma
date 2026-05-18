@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/webhooks-prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ESHOP_WEBHOOKS_DATABASE_URL")
+  schemas  = ["webhooks"]
+}
+
+model ProcessedIntegrationEventRow {
+  id                  String   @id @default(uuid()) @db.Uuid
+  integrationEventId String   @map("integration_event_id") @db.Uuid
+  consumerName       String   @map("consumer_name") @db.VarChar(200)
+  processedAt        DateTime @default(now()) @map("processed_at") @db.Timestamptz(6)
+
+  @@unique([integrationEventId, consumerName], map: "processed_integration_events_event_consumer_key")
+  @@map("processed_integration_events")
+  @@schema("webhooks")
+}
+
+/// Maps reference `WebhookType` (`CatalogItemPriceChange` = 1, `OrderShipped` = 2, `OrderPaid` = 3).
+model WebhookSubscription {
+  id      Int      @id @default(autoincrement())
+  userId  String   @map("user_id")
+  type    Int
+  destUrl String   @map("dest_url")
+  token   String?
+  date    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([userId])
+  @@index([type])
+  @@map("subscriptions")
+  @@schema("webhooks")
+}

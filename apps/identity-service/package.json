@@ -1,0 +1,49 @@
+{
+  "name": "@eshop/identity-service",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
+    "build": "pnpm run prisma:generate && nest build",
+    "start": "nest start",
+    "start:dev": "pnpm exec prisma generate --schema prisma/schema.prisma && nest start --watch",
+    "prisma:migrate": "prisma migrate deploy --schema prisma/schema.prisma",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "test:unit": "jest --config jest.config.unit.json --passWithNoTests"
+  },
+  "dependencies": {
+    "@eshop/auth": "workspace:*",
+    "@eshop/health": "workspace:*",
+    "@eshop/observability": "workspace:*",
+    "@eshop/openapi-common": "workspace:*",
+    "@nestjs/common": "^11.0.11",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.0.11",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.11",
+    "@nestjs/swagger": "^11.0.3",
+    "@prisma/client": "^6.3.1",
+    "bcryptjs": "^3.0.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.6",
+    "@nestjs/testing": "^11.0.11",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.13.14",
+    "jest": "^29.7.0",
+    "prisma": "^6.3.1",
+    "ts-jest": "^29.2.6",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts",
+    "schema": "prisma/schema.prisma"
+  }
+}

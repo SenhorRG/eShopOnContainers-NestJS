@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: eshop-nestjs-envs
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - env: dev
+            autoSync: "true"
+          - env: staging
+            autoSync: "false"
+  template:
+    metadata:
+      name: eshop-nestjs-{{env}}
+    spec:
+      project: eshop
+      source:
+        repoURL: https://github.com/YOUR_ORG/eShopOnContainers-NestJS.git
+        targetRevision: main
+        path: deploy/helm/eshop-nestjs
+        helm:
+          releaseName: eshop-{{env}}
+          valueFiles:
+            - values.yaml
+            - ../../gitops/environments/{{env}}/values.yaml
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: eshop
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: '{{autoSync}}'
+        syncOptions:
+          - CreateNamespace=true

@@ -1,0 +1,19 @@
+# CI merge file — deterministic host wiring for automated tests (Playwright / contract runners).
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.ci.yml --env-file .env.ci.example --profile dev up -d
+#
+# Does not replace `docker-compose.yml`; it documents overrides used in CI agents.
+
+services:
+  postgres:
+    ports:
+      - "55432:5432"
+
+  redis:
+    ports:
+      - "56379:6379"
+
+  rabbitmq:
+    ports:
+      - "55672:5672"
+      - "55673:15672"

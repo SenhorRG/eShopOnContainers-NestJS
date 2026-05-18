@@ -1,0 +1,319 @@
+#blazor-error-ui {
+  background: lightyellow;
+  bottom: 0;
+  box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+  display: none;
+  left: 0;
+  padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
+}
+
+#blazor-error-ui.eshop-error-ui--visible {
+  display: block;
+}
+
+#blazor-error-ui .dismiss {
+  cursor: pointer;
+  position: absolute;
+  right: 0.75rem;
+  top: 0.5rem;
+}
+
+.eshop-header {
+  position: relative;
+  max-width: 120rem;
+  margin: auto;
+}
+
+.eshop-header.home .eshop-header-container {
+  height: 38rem;
+  margin-bottom: 0;
+}
+
+.eshop-header .eshop-header-container {
+  height: 15rem;
+  margin-bottom: 4rem;
+}
+
+.eshop-header-hero {
+  overflow: hidden;
+  position: absolute;
+  max-width: 100%;
+  left: 0;
+  top: 0;
+}
+
+.eshop-header-container {
+  position: relative;
+  margin: auto;
+  margin: 0 10rem;
+}
+
+.eshop-header-intro {
+  position: absolute;
+  max-width: 48rem;
+  bottom: 3rem;
+  white-space: nowrap;
+}
+
+.eshop-header-intro h1 {
+  color: #000;
+  font-size: 3.5rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 100%;
+  margin: 0;
+}
+
+.eshop-header-intro p {
+  color: #000;
+  font-size: 2rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 125%;
+  margin: 0;
+}
+
+.eshop-header .logo-header {
+  color: black;
+  margin-right: auto;
+  width: 20vw;
+  height: auto;
+  max-width: 250px;
+  min-width: 100px;
+}
+
+.eshop-header-navbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 1.25rem;
+  gap: 1.5rem;
+}
+
+.eshop-user-menu-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-button {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+}
+
+.eshop-cart-link {
+  position: relative;
+  display: inline-block;
+}
+
+.cart-badge {
+  display: flex;
+  padding: 0.25rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  position: absolute;
+  right: -0.5rem;
+  top: 1rem;
+  border-radius: 20px;
+  border: 1px solid #000;
+  background: #000;
+  color: #fff;
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 0.25rem;
+}
+
+.dropdown-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  min-width: 8rem;
+  box-shadow: 0 0.25rem 0.5rem 0 rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdown-item {
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  display: block;
+  color: #000;
+}
+
+.dropdown-item:hover {
+  background-color: #ddd;
+}
+
+.dropdown-menu:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-item button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+}
+
+.eshop-footer {
+  margin-top: 3.5rem;
+  background-color: #000;
+  width: 100%;
+}
+
+.eshop-footer-content {
+  max-width: 120rem;
+  margin: auto;
+}
+
+.eshop-footer-row {
+  padding: 3.5rem 10rem;
+  color: white;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.eshop-footer .logo-footer {
+  color: white;
+  margin-right: auto;
+  width: 100px;
+  height: auto;
+}
+
+.show-chatbot {
+  position: fixed;
+  bottom: 5rem;
+  right: 3rem;
+  z-index: 1;
+  box-shadow: 0 2px 7px 2px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  background-image: url('/images/chat.png');
+  background-size: contain;
+  width: 4.5rem;
+  height: 3.5rem;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #f3f4f3;
+  transition: transform ease-out 0.2s;
+  border: 2px solid transparent;
+  display: block;
+}
+
+.show-chatbot:hover {
+  border-color: #49b4fe;
+  cursor: pointer;
+  transform: scale(1.2);
+  box-shadow: 0 2px 7px 2px rgba(0, 0, 0, 0.4);
+}
+
+.show-chatbot:active {
+  transform: scale(1.1);
+  transition: transform ease-out 0.01s;
+}
+
+@media only screen and (max-width: 480px) {
+  .eshop-header-hero {
+    height: 18rem;
+  }
+
+  .eshop-header-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .eshop-header .eshop-header-container {
+    height: 15rem;
+    margin-bottom: 4rem;
+  }
+
+  .eshop-header-container {
+    margin: 0 1rem;
+  }
+
+  .eshop-header.home .eshop-header-container {
+    height: 18rem;
+    margin: 0 1rem;
+  }
+
+  .eshop-header-intro {
+    white-space: wrap;
+    bottom: 0;
+  }
+
+  .eshop-header-intro h1 {
+    font-size: 2rem;
+  }
+
+  .eshop-header-intro p {
+    font-size: 1.5rem;
+  }
+
+  .eshop-footer-row {
+    padding: 3.5rem 1rem;
+  }
+}
+
+@media only screen and (min-width: 481px) and (max-width: 1024px) {
+  .eshop-header.home .eshop-header-hero {
+    height: 24rem;
+  }
+
+  .eshop-header .eshop-header-hero {
+    height: 15rem;
+  }
+
+  .eshop-header-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .eshop-header-container {
+    margin: 0 1rem;
+    margin: 0 3rem;
+  }
+
+  .eshop-header.home .eshop-header-container {
+    height: 24rem;
+    margin: 0 3rem;
+  }
+
+  .eshop-header-intro {
+    white-space: wrap;
+  }
+
+  .eshop-header-intro h1 {
+    font-size: 2rem;
+  }
+
+  .eshop-header-intro p {
+    font-size: 1.5rem;
+  }
+
+  .eshop-footer-row {
+    padding: 3.5rem 3rem;
+  }
+}

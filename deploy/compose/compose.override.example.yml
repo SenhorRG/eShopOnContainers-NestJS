@@ -1,0 +1,15 @@
+# Copy as `compose.override.yml` (same folder as `docker-compose.yml`).
+#
+# Windows + Docker Desktop: prefer WSL2 paths or convert backslashes.
+
+services:
+  catalog-service:
+    volumes:
+      - ../../apps/catalog-service/assets/pics:/data/catalog/pics:ro
+    environment:
+      CATALOG_PICS_PATH: /data/catalog/pics
+
+  postgres:
+    volumes:
+      # Optional: mount pics for DB-side tooling (same SSOT as catalog-service)
+      - ../../apps/catalog-service/assets/pics:/mnt/catalog-pics:ro

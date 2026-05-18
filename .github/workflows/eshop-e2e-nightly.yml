@@ -1,0 +1,133 @@
+name: eshop-e2e-nightly
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      run_oidc:
+        description: 'Run optional Keycloak OIDC Playwright specs (@oidc)'
+        type: boolean
+        default: false
+
+jobs:
+  e2e-stack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '9.15.0'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Start infra
+        run: pnpm infra:up
+
+      - name: DB migrate
+        run: pnpm db:migrate
+        env:
+          ESHOP_CATALOG_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:55432/catalogdb
+          ESHOP_IDENTITY_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:55432/identitydb
+          ESHOP_ORDERING_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:55432/orderingdb
+          ESHOP_WEBHOOKS_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:55432/webhooksdb
+
+      - name: Playwright with stack probes
+        run: pnpm test:e2e
+        env:
+          E2E_RUN_HEALTH: '1'
+          E2E_RUN_CHECKOUT: '0'
+
+  oidc-e2e:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_oidc == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '9.15.0'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Start infra and Keycloak
+        run: |
+          pnpm infra:up
+          docker compose -f deploy/compose/docker-compose.yml -f deploy/keycloak/docker-compose.keycloak.yml up -d --wait
+
+      - name: Wait for Keycloak realm
+        run: |
+          URL="${KEYCLOAK_BASE_URL:-http://127.0.0.1:8081}/realms/${KEYCLOAK_REALM:-eshop}/.well-known/openid-configuration"
+          for i in $(seq 1 60); do
+            if curl -fsS "$URL" >/dev/null 2>&1; then
+              echo "Keycloak realm ready."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Timed out waiting for Keycloak at $URL" >&2
+          exit 1
+
+      - name: DB migrate and seed
+        run: pnpm db:setup
+        env:
+          ESHOP_CATALOG_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:55432/catalogdb
+          ESHOP_IDENTITY_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:55432/identitydb
+          ESHOP_ORDERING_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:55432/orderingdb
+          ESHOP_WEBHOOKS_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:55432/webhooksdb
+
+      - name: Build
+        run: pnpm build
+
+      - name: Start APIs for OIDC E2E
+        run: |
+          cp .env.example .env
+          cat >> .env <<'EOF'
+          ESHOP_JWT_JWKS_URI=http://127.0.0.1:8081/realms/eshop/protocol/openid-connect/certs
+          ESHOP_JWT_ISSUERS=http://127.0.0.1:8081/realms/eshop
+          ESHOP_WEBHOOKS_AUTH_BYPASS=0
+          ESHOP_ORDERING_AUTH_BYPASS=0
+          EOF
+          dotenv -e .env -- pnpm --filter @eshop/catalog-service run start:dev &
+          dotenv -e .env -- pnpm --filter @eshop/webhooks-service run start:dev &
+          for i in $(seq 1 60); do
+            curl -fsS http://127.0.0.1:5052/api/alive && curl -fsS http://127.0.0.1:5055/api/alive && break
+            sleep 3
+          done
+
+      - name: Start storefront and webhook-client previews
+        run: |
+          pnpm --filter @eshop/storefront-web exec vite build
+          VITE_ESHOP_AUTHORITY=http://127.0.0.1:8081/realms/eshop VITE_ESHOP_CLIENT_ID=webapp \
+            pnpm --filter @eshop/storefront-web exec vite preview --host 127.0.0.1 --port 5173 --strictPort &
+          pnpm --filter @eshop/webhook-client exec vite build
+          pnpm --filter @eshop/webhook-client exec vite preview --host 127.0.0.1 --port 5174 --strictPort &
+          for i in $(seq 1 40); do
+            curl -fsS http://127.0.0.1:5173/ >/dev/null && curl -fsS http://127.0.0.1:5174/ >/dev/null && break
+            sleep 2
+          done
+
+      - name: Install Playwright browsers
+        run: pnpm --filter @eshop/e2e-tests exec playwright install chromium --with-deps
+
+      - name: OIDC Playwright (@oidc)
+        run: pnpm test:e2e:oidc
+        env:
+          E2E_OIDC_ENABLED: '1'
+          E2E_KEYCLOAK_ORIGIN: http://127.0.0.1:8081
+          E2E_STOREFRONT_ORIGIN: http://127.0.0.1:5173
+          E2E_WEBHOOK_CLIENT_ORIGIN: http://127.0.0.1:5174
+          E2E_WEBHOOKS_ORIGIN: http://127.0.0.1:5055
+          E2E_CATALOG_ORIGIN: http://127.0.0.1:5052

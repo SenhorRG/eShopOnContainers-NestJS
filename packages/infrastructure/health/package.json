@@ -1,0 +1,36 @@
+{
+  "name": "@eshop/health",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Standardized liveness/readiness probes for Postgres, Redis, and RabbitMQ.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0"
+  },
+  "dependencies": {
+    "@nestjs/terminus": "^11.1.1",
+    "amqplib": "^2.0.1",
+    "ioredis": "^5.10.1",
+    "pg": "^8.20.0",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/common": "^11.1.21",
+    "@nestjs/core": "^11.1.21",
+    "@types/amqplib": "^0.10.8",
+    "@types/pg": "^8.20.0",
+    "typescript": "^6.0.3"
+  }
+}

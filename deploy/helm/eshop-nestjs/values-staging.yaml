@@ -1,0 +1,8 @@
+services:
+  catalog:
+    replicas: 2
+  ordering:
+    replicas: 2
+
+serviceMonitor:
+  enabled: true

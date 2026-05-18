@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Catalog API",
+    "version": "1.0",
+    "description": "Placeholder snapshot — run `pnpm contracts:export-openapi` with catalog-service on port 5052 to refresh."
+  },
+  "paths": {}
+}

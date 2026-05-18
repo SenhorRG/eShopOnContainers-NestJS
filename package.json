@@ -1,0 +1,64 @@
+{
+  "name": "eshop-nestjs-monorepo",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "build": "pnpm build:infrastructure && pnpm build:domains && pnpm build:nest && pnpm build:web",
+    "build:infrastructure": "pnpm --filter \"./packages/infrastructure/*\" run build",
+    "build:domains": "pnpm --filter \"./packages/domains/*\" run build",
+    "build:nest": "pnpm --filter \"@eshop/identity-service\" --filter \"@eshop/catalog-service\" --filter \"@eshop/ordering-service\" --filter \"@eshop/basket-service\" --filter \"@eshop/webhooks-service\" --filter \"@eshop/order-grace-worker\" --filter \"@eshop/payment-worker\" --filter \"@eshop/mobile-bff\" run build",
+    "build:web": "pnpm --filter \"@eshop/storefront-web\" --filter \"@eshop/webhook-client\" --filter \"@eshop/operations-dashboard\" run build",
+
+    "test": "pnpm test:unit",
+    "test:unit": "pnpm --filter @eshop/event-bus-amqp test && pnpm --filter @eshop/outbox test && pnpm --filter @eshop/http-resilience test && pnpm --filter @eshop/observability test && pnpm --filter @eshop/inbox test && pnpm --filter @eshop/idempotency test && pnpm --filter @eshop/ordering-domain test && pnpm --filter @eshop/catalog-domain test && pnpm --filter @eshop/basket-domain test && pnpm --filter @eshop/identity-domain test && pnpm --filter @eshop/mobile-bff test && pnpm --filter @eshop/identity-service run test:unit && pnpm --filter @eshop/catalog-service run test:unit && pnpm --filter @eshop/ordering-service run test:contract && pnpm --filter @eshop/webhooks-service test && pnpm --filter @eshop/basket-service test",
+    "test:smoke": "pnpm --filter @eshop/e2e-tests exec playwright test specs/workspace.spec.ts",
+    "contracts:oasdiff": "node tools/oasdiff-contracts.mjs",
+    "test:integration": "pnpm --filter @eshop/integration-tests test",
+    "test:e2e": "pnpm --filter @eshop/e2e-tests test",
+    "test:e2e:oidc": "cross-env E2E_OIDC_ENABLED=1 pnpm --filter @eshop/e2e-tests exec playwright test --grep @oidc",
+
+    "setup:local": "pnpm infra:up && pnpm db:setup",
+    "infra:up": "docker compose -f deploy/compose/docker-compose.yml -f deploy/compose/observability/docker-compose.observability.yml --env-file deploy/compose/.env.compose.example up -d --wait",
+    "infra:down": "docker compose -f deploy/compose/docker-compose.yml -f deploy/compose/observability/docker-compose.observability.yml --env-file deploy/compose/.env.compose.example down --remove-orphans",
+
+    "stack:up": "docker compose -f deploy/compose/docker-compose.yml -f deploy/compose/docker-compose.stack.yml --env-file deploy/compose/.env.stack.example --profile stack up -d --build",
+    "stack:down": "docker compose -f deploy/compose/docker-compose.yml -f deploy/compose/docker-compose.stack.yml --env-file deploy/compose/.env.stack.example --profile stack down --remove-orphans",
+
+    "db:setup": "pnpm db:migrate && pnpm db:seed",
+    "db:migrate": "dotenv -e .env -- pnpm --filter @eshop/catalog-service run prisma:generate && dotenv -e .env -- pnpm --filter @eshop/identity-service run prisma:generate && dotenv -e .env -- pnpm --filter @eshop/ordering-service run prisma:generate && dotenv -e .env -- pnpm --filter @eshop/webhooks-service run prisma:generate && dotenv -e .env -- pnpm --filter @eshop/catalog-service run prisma:migrate && dotenv -e .env -- pnpm --filter @eshop/identity-service run prisma:migrate && dotenv -e .env -- pnpm --filter @eshop/ordering-service run prisma:migrate && dotenv -e .env -- pnpm --filter @eshop/webhooks-service run prisma:migrate",
+    "db:seed": "dotenv -e .env -- pnpm --filter @eshop/catalog-service run prisma:seed && dotenv -e .env -- pnpm --filter @eshop/identity-service run prisma:seed && dotenv -e .env -- pnpm --filter @eshop/ordering-service run prisma:seed",
+
+    "predev": "pnpm build:domains",
+    "dev": "concurrently -n identity,catalog,ordering,basket,webhooks,grace,payment,bff \"dotenv -e .env -- pnpm --filter @eshop/identity-service run start:dev\" \"dotenv -e .env -- pnpm --filter @eshop/catalog-service run start:dev\" \"dotenv -e .env -- pnpm --filter @eshop/ordering-service run start:dev\" \"dotenv -e .env -- pnpm --filter @eshop/basket-service run start:dev\" \"dotenv -e .env -- pnpm --filter @eshop/webhooks-service run start:dev\" \"dotenv -e .env -- pnpm --filter @eshop/order-grace-worker run start:dev\" \"dotenv -e .env -- pnpm --filter @eshop/payment-worker run start:dev\" \"dotenv -e .env -- pnpm --filter @eshop/mobile-bff run start:dev\"",
+    "dev:ui": "concurrently -n storefront,webhook-client,ops \"pnpm --filter @eshop/storefront-web dev\" \"pnpm --filter @eshop/webhook-client dev\" \"pnpm --filter @eshop/operations-dashboard dev\"",
+
+    "contracts:export-openapi": "node tools/export-openapi.mjs",
+    "contracts:check": "node tools/check-openapi-contracts.mjs",
+    "contracts:check:live": "cross-env CHECK_OPENAPI_LIVE=1 node tools/check-openapi-contracts.mjs",
+
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format:check": "biome check .",
+
+    "check": "pnpm lint && pnpm build",
+    "ci": "pnpm build && pnpm contracts:check && pnpm test:ci",
+    "test:ci": "pnpm test:smoke && pnpm test:unit && pnpm test:integration && cross-env E2E_RUN_HEALTH=0 pnpm test:e2e"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "dotenv-cli": "^8.0.0",
+    "typescript": "^6.0.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "class-validator": "0.15.1",
+      "@types/react": "19.2.14",
+      "@types/react-dom": "19.2.3"
+    }
+  }
+}

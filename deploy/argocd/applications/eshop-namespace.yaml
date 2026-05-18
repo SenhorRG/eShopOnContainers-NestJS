@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: eshop-namespace
+  namespace: argocd
+spec:
+  project: eshop
+  source:
+    repoURL: https://github.com/YOUR_ORG/eShopOnContainers-NestJS.git
+    targetRevision: main
+    path: deploy/argocd
+    directory:
+      include: namespace-eshop.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: eshop
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

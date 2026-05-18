@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Ordering API",
+    "version": "1.0",
+    "description": "Placeholder snapshot — run `pnpm contracts:export-openapi` with ordering-service on port 5053 to refresh."
+  },
+  "paths": {}
+}

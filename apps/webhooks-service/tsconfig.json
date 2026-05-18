@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
+    "baseUrl": ".",
+    "paths": {
+      "@eshop/event-bus-amqp/nest": ["../../packages/infrastructure/event-bus-amqp/dist/nest/index"]
+    }
+  },
+  "include": ["src/**/*"]
+}

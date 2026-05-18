@@ -1,0 +1,6 @@
+# Example dev install: helm upgrade --install eshop ./deploy/helm/eshop-nestjs -f values-dev.yaml
+databaseSecrets:
+  create: true
+
+serviceMonitor:
+  enabled: false

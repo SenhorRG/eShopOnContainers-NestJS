@@ -1,0 +1,159 @@
+{
+  "resources": [
+    {
+      "id": "identity-service",
+      "title": "identity-service",
+      "kind": "service",
+      "composeProfiles": ["dev", "stack"],
+      "hostPort": 5051,
+      "openUrl": "http://127.0.0.1:5051/api/health"
+    },
+    {
+      "id": "catalog-service",
+      "title": "catalog-service",
+      "kind": "service",
+      "composeProfiles": ["dev", "stack"],
+      "hostPort": 5052,
+      "openUrl": "http://127.0.0.1:5052/api/health"
+    },
+    {
+      "id": "ordering-service",
+      "title": "ordering-service",
+      "kind": "service",
+      "composeProfiles": ["dev", "stack"],
+      "hostPort": 5053,
+      "openUrl": "http://127.0.0.1:5053/api/health"
+    },
+    {
+      "id": "basket-service",
+      "title": "basket-service",
+      "kind": "service",
+      "composeProfiles": ["dev", "stack"],
+      "hostPort": 5054,
+      "openUrl": "http://127.0.0.1:5054/health"
+    },
+    {
+      "id": "webhooks-service",
+      "title": "webhooks-service",
+      "kind": "service",
+      "composeProfiles": ["dev", "stack"],
+      "hostPort": 5055,
+      "openUrl": "http://127.0.0.1:5055/api/health"
+    },
+    {
+      "id": "mobile-bff",
+      "title": "mobile-bff",
+      "kind": "service",
+      "composeProfiles": ["dev", "stack"],
+      "hostPort": 5070,
+      "openUrl": "http://127.0.0.1:5070/health"
+    },
+    {
+      "id": "order-grace-worker",
+      "title": "order-grace-worker",
+      "kind": "worker",
+      "composeProfiles": ["dev", "stack"],
+      "hostPort": 5065,
+      "openUrl": "http://127.0.0.1:5065/health"
+    },
+    {
+      "id": "payment-worker",
+      "title": "payment-worker",
+      "kind": "worker",
+      "composeProfiles": ["dev", "stack"],
+      "hostPort": 5066,
+      "openUrl": "http://127.0.0.1:5066/health"
+    },
+    {
+      "id": "postgres",
+      "title": "postgres",
+      "kind": "database",
+      "composeProfiles": ["dev", "infra-only", "e2e", "stack"],
+      "hostPort": 55432
+    },
+    {
+      "id": "redis",
+      "title": "redis",
+      "kind": "cache",
+      "composeProfiles": ["dev", "infra-only", "e2e", "stack"],
+      "hostPort": 56379
+    },
+    {
+      "id": "rabbitmq",
+      "title": "rabbitmq",
+      "kind": "message-bus",
+      "composeProfiles": ["dev", "infra-only", "e2e", "stack"],
+      "hostPort": 55672,
+      "openUrl": "http://127.0.0.1:55673"
+    },
+    {
+      "id": "grafana",
+      "title": "grafana",
+      "kind": "observability",
+      "composeProfiles": ["dev"],
+      "hostPort": 3200,
+      "openUrl": "http://localhost:3200"
+    },
+    {
+      "id": "prometheus",
+      "title": "prometheus",
+      "kind": "observability",
+      "composeProfiles": ["dev"],
+      "hostPort": 9099,
+      "openUrl": "http://localhost:9099"
+    },
+    {
+      "id": "jaeger",
+      "title": "jaeger",
+      "kind": "observability",
+      "composeProfiles": ["dev"],
+      "hostPort": 16686,
+      "openUrl": "http://localhost:16686"
+    },
+    {
+      "id": "loki",
+      "title": "loki",
+      "kind": "observability",
+      "composeProfiles": ["dev"],
+      "hostPort": 3100,
+      "openUrl": "http://localhost:3100/ready"
+    },
+    {
+      "id": "otel-collector",
+      "title": "otel-collector",
+      "kind": "observability",
+      "composeProfiles": ["dev"],
+      "hostPort": 14318,
+      "openUrl": "http://localhost:13133"
+    },
+    {
+      "id": "storefront-web",
+      "title": "storefront-web",
+      "kind": "ui",
+      "composeProfiles": ["dev", "stack"],
+      "hostPort": 5173,
+      "openUrl": "http://localhost:5173"
+    }
+  ],
+  "edges": [
+    { "from": "identity-service", "to": "postgres", "relation": "database:identitydb" },
+    { "from": "catalog-service", "to": "postgres", "relation": "database:catalogdb" },
+    { "from": "catalog-service", "to": "rabbitmq", "relation": "integration-events" },
+    { "from": "ordering-service", "to": "postgres", "relation": "database:orderingdb" },
+    { "from": "ordering-service", "to": "rabbitmq", "relation": "integration-events" },
+    { "from": "webhooks-service", "to": "postgres", "relation": "database:webhooksdb" },
+    { "from": "webhooks-service", "to": "rabbitmq", "relation": "integration-events" },
+    { "from": "basket-service", "to": "redis", "relation": "cache" },
+    { "from": "basket-service", "to": "rabbitmq", "relation": "integration-events" },
+    { "from": "order-grace-worker", "to": "rabbitmq", "relation": "consumer" },
+    { "from": "order-grace-worker", "to": "postgres", "relation": "database:orderingdb" },
+    { "from": "payment-worker", "to": "rabbitmq", "relation": "consumer" },
+    { "from": "payment-worker", "to": "postgres", "relation": "database:orderingdb" },
+    { "from": "mobile-bff", "to": "catalog-service", "relation": "http-proxy" },
+    { "from": "mobile-bff", "to": "ordering-service", "relation": "http-proxy" },
+    { "from": "mobile-bff", "to": "identity-service", "relation": "http-proxy" },
+    { "from": "storefront-web", "to": "catalog-service", "relation": "http-client" },
+    { "from": "storefront-web", "to": "ordering-service", "relation": "http-client" },
+    { "from": "storefront-web", "to": "identity-service", "relation": "http-client" }
+  ]
+}

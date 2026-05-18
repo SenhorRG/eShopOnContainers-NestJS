@@ -1,0 +1,37 @@
+# Monorepo context for `docker build` from repository root
+node_modules
+**/node_modules
+dist
+**/dist
+# Host incremental caches break `tsc` inside the image (JS not re-emitted into empty dist).
+**/*.tsbuildinfo
+.git
+.github
+.idea
+.vscode
+**/*.md
+!README.md
+coverage
+**/coverage
+.turbo
+**/.cache
+playwright-report
+test-results
+blob-report
+**/.vite
+*.log
+.env
+.env.*
+!**/.env.example
+tests/e2e
+tests/integration
+e2e
+**/__tests__
+**/*.spec.ts
+**/*.test.ts
+prompt-tasks
+prompts-tasks
+prompts-task
+prompt-task
+**/.ladle
+storybook-static

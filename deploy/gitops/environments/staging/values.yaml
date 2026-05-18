@@ -1,0 +1,6 @@
+# Staging — manual sync recommended in shared clusters.
+services:
+  catalog:
+    replicas: 2
+  ordering:
+    replicas: 2

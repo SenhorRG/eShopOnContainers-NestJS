@@ -1,0 +1,47 @@
+# syntax=docker/dockerfile:1
+# Multi-stage NestJS service image (pnpm workspace deploy).
+#
+# Build from monorepo root (directory with `pnpm-workspace.yaml`):
+#   docker build -f deploy/docker/Dockerfile.nest.template \
+#     --build-arg PNPM_FILTER=@eshop/catalog-service \
+#     -t eshop/catalog-service:local .
+#
+# Override HTTP port at runtime with env `PORT` (matches each app's defaultPort).
+
+ARG PNPM_FILTER=@eshop/catalog-service
+
+FROM node:20.19-alpine AS builder
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /repo
+RUN apk add --no-cache libc6-compat openssl python3 make g++
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
+COPY apps ./apps
+COPY packages ./packages
+COPY contracts ./contracts
+
+RUN pnpm install --frozen-lockfile
+RUN pnpm run build:infrastructure && pnpm run build:domains
+
+ARG PNPM_FILTER
+RUN pnpm --filter "${PNPM_FILTER}" run build
+RUN pnpm deploy --filter="${PNPM_FILTER}" --prod /deploy
+
+FROM node:20.19-alpine AS runner
+RUN apk add --no-cache curl libc6-compat openssl \
+  && addgroup -g 1001 nodejs && adduser -S -u 1001 -G nodejs nestjs
+
+WORKDIR /app
+COPY --from=builder --chown=nestjs:nodejs /deploy ./
+
+# gRPC proto for basket-service (small file; path wired via compose env for that image only)
+COPY --chown=nestjs:nodejs contracts/grpc/basket.proto /proto/basket.proto
+
+USER nestjs
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+EXPOSE 5051 5052 5053 5054 5055 5065 5066 5070 9071
+
+CMD ["node", "dist/main.js"]

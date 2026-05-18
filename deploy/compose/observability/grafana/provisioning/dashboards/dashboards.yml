@@ -1,0 +1,9 @@
+apiVersion: 1
+providers:
+  - name: eShop Nest dashboards
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    folder: eShop Dev
+    options:
+      path: /var/lib/grafana/dashboards

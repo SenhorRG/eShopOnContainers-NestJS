@@ -1,0 +1,66 @@
+[
+  {
+    "id": "identity",
+    "title": "identity-service",
+    "otelServiceName": "identity-service",
+    "healthUrl": "http://127.0.0.1:5051/api/health",
+    "aliveUrl": "http://127.0.0.1:5051/api/alive",
+    "port": 5051
+  },
+  {
+    "id": "catalog",
+    "title": "catalog-service",
+    "otelServiceName": "catalog-service",
+    "healthUrl": "http://127.0.0.1:5052/api/health",
+    "aliveUrl": "http://127.0.0.1:5052/api/alive",
+    "port": 5052
+  },
+  {
+    "id": "ordering",
+    "title": "ordering-service",
+    "otelServiceName": "ordering-service",
+    "healthUrl": "http://127.0.0.1:5053/api/health",
+    "aliveUrl": "http://127.0.0.1:5053/api/alive",
+    "port": 5053
+  },
+  {
+    "id": "basket",
+    "title": "basket-service",
+    "otelServiceName": "basket-service",
+    "healthUrl": "http://127.0.0.1:5054/health",
+    "aliveUrl": "http://127.0.0.1:5054/alive",
+    "port": 5054
+  },
+  {
+    "id": "webhooks",
+    "title": "webhooks-service",
+    "otelServiceName": "webhooks-service",
+    "healthUrl": "http://127.0.0.1:5055/api/health",
+    "aliveUrl": "http://127.0.0.1:5055/api/alive",
+    "port": 5055
+  },
+  {
+    "id": "bff",
+    "title": "mobile-bff",
+    "otelServiceName": "mobile-bff",
+    "healthUrl": "http://127.0.0.1:5070/health",
+    "aliveUrl": "http://127.0.0.1:5070/alive",
+    "port": 5070
+  },
+  {
+    "id": "order-grace",
+    "title": "order-grace-worker",
+    "otelServiceName": "order-grace-worker",
+    "healthUrl": "http://127.0.0.1:5065/health",
+    "aliveUrl": "http://127.0.0.1:5065/alive",
+    "port": 5065
+  },
+  {
+    "id": "payment",
+    "title": "payment-worker",
+    "otelServiceName": "payment-worker",
+    "healthUrl": "http://127.0.0.1:5066/health",
+    "aliveUrl": "http://127.0.0.1:5066/alive",
+    "port": 5066
+  }
+]

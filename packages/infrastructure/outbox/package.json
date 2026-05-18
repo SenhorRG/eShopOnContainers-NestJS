@@ -1,0 +1,27 @@
+{
+  "name": "@eshop/outbox",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Transactional outbox append and publish helpers.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@eshop/event-bus-amqp": "workspace:*",
+    "@opentelemetry/api": "^1.9.1"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
+  }
+}

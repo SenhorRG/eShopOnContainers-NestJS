@@ -1,0 +1,12 @@
+# Local only — not applied by default. Use:
+#   helm template eshop deploy/helm/eshop-nestjs -f deploy/helm/eshop-nestjs/values-ingress-study.yaml
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: catalog.study.local
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: eshop-eshop-nestjs-catalog
+          servicePort: 5052

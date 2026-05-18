@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/catalog-prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ESHOP_CATALOG_DATABASE_URL")
+}
+
+model CatalogBrand {
+  Id    Int @id @default(autoincrement())
+  Brand String @db.VarChar(100)
+  items CatalogItem[]
+
+  @@map("CatalogBrand")
+}
+
+model CatalogType {
+  Id   Int @id @default(autoincrement())
+  Type String @db.VarChar(100)
+  items CatalogItem[]
+
+  @@map("CatalogType")
+}
+
+model ProcessedIntegrationEventRow {
+  id                  String   @id @default(uuid()) @db.Uuid
+  integrationEventId String   @map("integration_event_id") @db.Uuid
+  consumerName       String   @map("consumer_name") @db.VarChar(200)
+  processedAt        DateTime @default(now()) @map("processed_at") @db.Timestamptz(6)
+
+  @@unique([integrationEventId, consumerName], map: "processed_integration_events_event_consumer_key")
+  @@map("processed_integration_events")
+}
+
+model CatalogItem {
+  Id               Int     @id @default(autoincrement())
+  Name             String  @db.VarChar(50)
+  Description      String?
+  Price            Decimal @db.Decimal(18, 4)
+  PictureFileName  String?
+  CatalogTypeId    Int
+  CatalogBrandId   Int
+  AvailableStock   Int
+  RestockThreshold   Int
+  MaxStockThreshold Int
+  OnReorder        Boolean @default(false)
+  Embedding        Unsupported("vector(384)")?
+
+  catalogBrand CatalogBrand @relation(fields: [CatalogBrandId], references: [Id], onDelete: Cascade)
+  catalogType  CatalogType  @relation(fields: [CatalogTypeId], references: [Id], onDelete: Cascade)
+
+  @@index([Name])
+  @@index([CatalogBrandId])
+  @@index([CatalogTypeId])
+  @@map("Catalog")
+}

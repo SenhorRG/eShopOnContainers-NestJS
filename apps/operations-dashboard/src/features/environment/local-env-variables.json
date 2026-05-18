@@ -1,0 +1,82 @@
+[
+  {
+    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+    "description": "OTLP HTTP ingest for traces, metrics, and logs on the host-run Nest stack."
+  },
+  {
+    "name": "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT",
+    "description": "Optional OTLP traces override when not using the shared OTLP endpoint."
+  },
+  {
+    "name": "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT",
+    "description": "Optional OTLP metrics override when not using the shared OTLP endpoint."
+  },
+  {
+    "name": "OTEL_EXPORTER_OTLP_LOGS_ENDPOINT",
+    "description": "Optional OTLP logs override when not using the shared OTLP endpoint."
+  },
+  {
+    "name": "OTEL_SERVICE_NAME",
+    "description": "OpenTelemetry service.name used by Jaeger, Prometheus, and structured logs."
+  },
+  {
+    "name": "OTEL_SDK_DISABLED",
+    "description": "Set to true to skip OpenTelemetry bootstrap in local or test runs."
+  },
+  {
+    "name": "ESHOP_CATALOG_DATABASE_URL",
+    "description": "PostgreSQL connection string for catalog-service."
+  },
+  {
+    "name": "ESHOP_IDENTITY_DATABASE_URL",
+    "description": "PostgreSQL connection string for identity-service."
+  },
+  {
+    "name": "ESHOP_ORDERING_DATABASE_URL",
+    "description": "PostgreSQL connection string for ordering-service and workers."
+  },
+  {
+    "name": "ESHOP_WEBHOOKS_DATABASE_URL",
+    "description": "PostgreSQL connection string for webhooks-service."
+  },
+  {
+    "name": "ESHOP_REDIS_URL",
+    "description": "Redis connection string for basket projections."
+  },
+  {
+    "name": "ESHOP_RABBITMQ_HOST",
+    "description": "RabbitMQ host for integration events."
+  },
+  {
+    "name": "ESHOP_RABBITMQ_PORT",
+    "description": "RabbitMQ AMQP port exposed on the host."
+  },
+  {
+    "name": "ESHOP_IDENTITY_ISSUER_URL",
+    "description": "Identity issuer URL used by storefront and API clients."
+  },
+  {
+    "name": "ESHOP_JWT_SYMMETRIC_SECRET",
+    "description": "Shared HS256 secret for local JWT issuance and validation."
+  },
+  {
+    "name": "ESHOP_CATALOG_HTTP_URL",
+    "description": "Catalog HTTP base URL for local service-to-service calls."
+  },
+  {
+    "name": "ESHOP_ORDERING_HTTP_URL",
+    "description": "Ordering HTTP base URL for local service-to-service calls."
+  },
+  {
+    "name": "ESHOP_MOBILE_BFF_URL",
+    "description": "Mobile BFF base URL for local clients."
+  },
+  {
+    "name": "ESHOP_WEBHOOKS_API_URL",
+    "description": "Webhooks API base URL for local clients."
+  },
+  {
+    "name": "COMPOSE_PROFILES",
+    "description": "Docker Compose profiles used to start infra and observability locally."
+  }
+]

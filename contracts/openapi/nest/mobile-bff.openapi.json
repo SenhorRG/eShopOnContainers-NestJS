@@ -1,0 +1,45 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Mobile BFF (reverse proxy)",
+    "version": "1.0",
+    "description": "Static contract for gateway mount paths. Upstream OpenAPI lives on each microservice; this documents the BFF surface only."
+  },
+  "paths": {
+    "/catalog-api/{path}": {
+      "get": {
+        "summary": "Proxy to catalog-service",
+        "parameters": [{ "name": "path", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Proxied catalog response" } }
+      }
+    },
+    "/api/catalog/{path}": {
+      "get": {
+        "summary": "Proxy to catalog-service (alias)",
+        "parameters": [{ "name": "path", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Proxied catalog response" } }
+      }
+    },
+    "/api/orders/{path}": {
+      "get": {
+        "summary": "Proxy to ordering-service",
+        "parameters": [{ "name": "path", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Proxied ordering response" } }
+      }
+    },
+    "/api/basket/{path}": {
+      "get": {
+        "summary": "Proxy to basket-service",
+        "parameters": [{ "name": "path", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Proxied basket response" } }
+      }
+    },
+    "/identity/{path}": {
+      "get": {
+        "summary": "Proxy to identity-service",
+        "parameters": [{ "name": "path", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Proxied identity response" } }
+      }
+    }
+  }
+}

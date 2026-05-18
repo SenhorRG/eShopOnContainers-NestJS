@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
+    "baseUrl": ".",
+    "paths": {
+      "@identity/prisma-client": ["./src/generated/identity-prisma"]
+    }
+  },
+  "include": ["src/**/*"]
+}

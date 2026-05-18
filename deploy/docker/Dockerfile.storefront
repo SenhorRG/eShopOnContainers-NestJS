@@ -1,0 +1,32 @@
+# Vite storefront → nginx static. Build from monorepo root:
+#   docker build -f deploy/docker/Dockerfile.storefront -t eshop/storefront-web:local .
+
+FROM node:20.19-alpine AS build
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /repo
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
+COPY apps ./apps
+COPY packages ./packages
+COPY contracts ./contracts
+
+RUN apk add --no-cache libc6-compat
+RUN pnpm install --frozen-lockfile
+RUN pnpm run build:infrastructure
+
+# Browser-origin API bases (SPA runs in the user browser; defaults match published host ports from compose stack).
+ARG VITE_ESHOP_IDENTITY_ORIGIN=http://127.0.0.1:5051
+ARG VITE_ESHOP_CATALOG_ORIGIN=http://127.0.0.1:5052
+ARG VITE_ESHOP_ORDERING_ORIGIN=http://127.0.0.1:5053
+ENV VITE_ESHOP_IDENTITY_ORIGIN=${VITE_ESHOP_IDENTITY_ORIGIN}
+ENV VITE_ESHOP_CATALOG_ORIGIN=${VITE_ESHOP_CATALOG_ORIGIN}
+ENV VITE_ESHOP_ORDERING_ORIGIN=${VITE_ESHOP_ORDERING_ORIGIN}
+
+RUN pnpm --filter @eshop/storefront-web run build
+
+FROM nginx:1.27-alpine AS runner
+COPY deploy/docker/nginx-storefront.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /repo/apps/storefront-web/dist /usr/share/nginx/html
+
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD wget -qO- http://127.0.0.1:8080/health >/dev/null || exit 1

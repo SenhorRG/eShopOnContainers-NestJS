@@ -1,0 +1,201 @@
+# Default images — override per environment / CI registry (GHCR, ACR, ECR).
+global:
+  imageRegistry: ghcr.io
+  imageRepositoryPrefix: example-org/eshop
+  imagePullPolicy: IfNotPresent
+  # Shared infra endpoints (wire to Bitnami subchart Services or external managed deps).
+  rabbitmq:
+    host: rabbitmq
+    port: "5672"
+    username: guest
+    password: guest
+    vhost: /
+  redis:
+    url: redis://redis:6379
+
+# One Deployment + Service per Nest workload (loop in templates/deployments.yaml).
+services:
+  identity:
+    enabled: true
+    image:
+      repository: identity-service
+      tag: latest
+    replicas: 1
+    port: 5051
+    healthPath: /api/alive
+    resources: null
+    env: {}
+  catalog:
+    enabled: true
+    image:
+      repository: catalog-service
+      tag: latest
+    replicas: 1
+    port: 5052
+    healthPath: /api/alive
+    resources: null
+    env: {}
+  ordering:
+    enabled: true
+    image:
+      repository: ordering-service
+      tag: latest
+    replicas: 1
+    port: 5053
+    healthPath: /api/alive
+    resources: null
+    env: {}
+  basket:
+    enabled: true
+    image:
+      repository: basket-service
+      tag: latest
+    replicas: 1
+    port: 5054
+    grpcPort: 9071
+    healthPath: /alive
+    resources: null
+    env: {}
+  webhooks:
+    enabled: true
+    image:
+      repository: webhooks-service
+      tag: latest
+    replicas: 1
+    port: 5055
+    healthPath: /api/alive
+    resources: null
+    env: {}
+  order-grace-worker:
+    enabled: true
+    image:
+      repository: order-grace-worker
+      tag: latest
+    replicas: 1
+    port: 5065
+    healthPath: /api/alive
+    resources: null
+    env: {}
+  payment-worker:
+    enabled: true
+    image:
+      repository: payment-worker
+      tag: latest
+    replicas: 1
+    port: 5066
+    healthPath: /api/alive
+    resources: null
+    env: {}
+  mobile-bff:
+    enabled: true
+    image:
+      repository: mobile-bff
+      tag: latest
+    replicas: 1
+    port: 5070
+    healthPath: /alive
+    resources: null
+    env: {}
+    bffProxies:
+      catalog: catalog
+      ordering: ordering
+      identity: identity
+      basket: basket
+
+# Prisma migrate deploy Jobs (identity, catalog, ordering, webhooks).
+prismaMigrate:
+  enabled: true
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 86400
+  services:
+    identity:
+      enabled: true
+      image:
+        repository: identity-service
+        tag: latest
+      databaseUrlEnv: ESHOP_IDENTITY_DATABASE_URL
+    catalog:
+      enabled: true
+      image:
+        repository: catalog-service
+        tag: latest
+      databaseUrlEnv: ESHOP_CATALOG_DATABASE_URL
+    ordering:
+      enabled: true
+      image:
+        repository: ordering-service
+        tag: latest
+      databaseUrlEnv: ESHOP_ORDERING_DATABASE_URL
+    webhooks:
+      enabled: true
+      image:
+        repository: webhooks-service
+        tag: latest
+      databaseUrlEnv: ESHOP_WEBHOOKS_DATABASE_URL
+
+# Optional Bitnami toggles (only used when dependencies are uncommented in Chart.yaml).
+postgresql:
+  enabled: false
+redis:
+  enabled: false
+rabbitmq:
+  enabled: false
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  tls: []
+
+# Study placeholders — replace URLs before production sync (Sealed Secrets / ESO recommended).
+databaseSecrets:
+  create: false
+  entries:
+    identity:
+      secretName: identity-db
+      databaseUrlEnv: ESHOP_IDENTITY_DATABASE_URL
+    catalog:
+      secretName: catalog-db
+      databaseUrlEnv: ESHOP_CATALOG_DATABASE_URL
+    ordering:
+      secretName: ordering-db
+      databaseUrlEnv: ESHOP_ORDERING_DATABASE_URL
+    webhooks:
+      secretName: webhooks-db
+      databaseUrlEnv: ESHOP_WEBHOOKS_DATABASE_URL
+
+serviceMonitor:
+  enabled: false
+  interval: 30s
+
+podDisruptionBudget:
+  enabled: true
+  services:
+    catalog: true
+    ordering: true
+
+autoscaling:
+  enabled: false
+  services:
+    catalog:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPU: 70
+    ordering:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPU: 70
+
+defaultResources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+networkPolicy:
+  enabled: false

@@ -1,0 +1,71 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Basket API",
+    "version": "1.0",
+    "description": "Redis-backed basket HTTP surface (gRPC on port 9071). Refresh via `pnpm contracts:export-openapi` with basket-service on port 5054."
+  },
+  "paths": {
+    "/api/basket": {
+      "get": {
+        "tags": ["Basket"],
+        "operationId": "BasketHttpController_getBasket",
+        "security": [{ "bearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Current basket items for authenticated buyer"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Basket"],
+        "operationId": "BasketHttpController_updateBasket",
+        "security": [{ "bearer": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["items"],
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["productId", "quantity"],
+                      "properties": {
+                        "productId": { "type": "integer" },
+                        "quantity": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Updated basket" }
+        }
+      },
+      "delete": {
+        "tags": ["Basket"],
+        "operationId": "BasketHttpController_deleteBasket",
+        "security": [{ "bearer": [] }],
+        "responses": {
+          "204": { "description": "Basket removed" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

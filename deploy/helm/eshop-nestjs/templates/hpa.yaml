@@ -1,0 +1,25 @@
+{{- if .Values.autoscaling.enabled }}
+{{- range $name, $cfg := .Values.autoscaling.services }}
+{{- if $cfg.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "eshop-nestjs.serviceFullname" (dict "root" $ "name" $name) }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "eshop-nestjs.serviceFullname" (dict "root" $ "name" $name) }}
+  minReplicas: {{ $cfg.minReplicas | default 1 }}
+  maxReplicas: {{ $cfg.maxReplicas | default 3 }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $cfg.targetCPU | default 70 }}
+{{- end }}
+{{- end }}
+{{- end }}

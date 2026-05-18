@@ -1,0 +1,39 @@
+{
+  "name": "@eshop/event-bus-amqp",
+  "version": "0.0.1",
+  "private": true,
+  "description": "RabbitMQ AMQP event bus with OpenTelemetry instrumentation.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./nest": {
+      "types": "./dist/nest/index.d.ts",
+      "default": "./dist/nest/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0"
+  },
+  "dependencies": {
+    "@eshop/observability": "workspace:*",
+    "@opentelemetry/api": "^1.9.0",
+    "amqp-connection-manager": "^4.1.14",
+    "amqplib": "^0.10.4"
+  },
+  "devDependencies": {
+    "@nestjs/common": "^11.0.11",
+    "@nestjs/core": "^11.0.11",
+    "@types/amqplib": "^0.10.6",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.9"
+  }
+}

@@ -1,0 +1,14 @@
+# Snippet — use when Dockerfile-based Nest services join the Compose stack (Phase 14+).
+# Tune host/port/path to match each service LISTEN configuration.
+#
+# Example:
+#
+# catalog-service:
+#   healthcheck:
+#     test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${PORT:-5052}/alive || exit 1"]
+#     interval: 15s
+#     timeout: 5s
+#     retries: 5
+#
+# Prefer `/alive` for simple liveness (`depends_on: condition: service_healthy`).
+# Prefer `/health` for readiness gated on Postgres/Rabbit/Basket Redis.

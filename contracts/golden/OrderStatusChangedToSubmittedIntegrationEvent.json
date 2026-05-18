@@ -1,0 +1,8 @@
+{
+  "Id": "11111111-2222-4333-8444-555555555555",
+  "CreationDate": "2026-05-09T12:34:56.0000000Z",
+  "OrderId": 1001,
+  "OrderStatus": "Submitted",
+  "BuyerName": "Ada Lovelace",
+  "BuyerIdentityGuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+}

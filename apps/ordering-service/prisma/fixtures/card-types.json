@@ -1,0 +1,5 @@
+[
+  { "Id": 1, "Name": "Amex" },
+  { "Id": 2, "Name": "Visa" },
+  { "Id": 3, "Name": "MasterCard" }
+]

@@ -1,0 +1,7 @@
+# Production-shaped values — require real secrets and image tags before sync.
+global:
+  imagePullPolicy: IfNotPresent
+
+ingress:
+  enabled: true
+  className: nginx

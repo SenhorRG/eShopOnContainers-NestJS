@@ -1,0 +1,41 @@
+{
+  "name": "@eshop/auth",
+  "version": "0.0.1",
+  "private": true,
+  "description": "JWT guards and auth helpers for Nest services.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^11.0.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.21",
+    "@nestjs/passport": "^11.0.5",
+    "jsonwebtoken": "^9.0.3",
+    "jwks-rsa": "^4.0.1",
+    "passport-jwt": "^4.0.1",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/passport-jwt": "^4.0.1",
+    "passport": "^0.7.0",
+    "typescript": "^6.0.3",
+    "vitest": "^2.1.9"
+  }
+}

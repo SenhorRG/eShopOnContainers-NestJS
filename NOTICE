@@ -1,0 +1,6 @@
+eShopOnContainers-NestJS
+
+Distributed commerce sample implemented with NestJS, React, Docker Compose,
+and permissively licensed OSS dependencies declared in package manifests.
+
+See LICENSE for repository terms.

@@ -1,0 +1,24 @@
+apiVersion: v2
+name: eshop-nestjs
+description: Umbrella chart for eShop NestJS microservices, workers, and mobile BFF.
+type: application
+version: 0.2.0
+appVersion: "0.0.1"
+
+# Optional Bitnami subcharts — uncomment and run `helm dependency update` when you want
+# in-cluster PostgreSQL, Redis, and RabbitMQ instead of external/managed dependencies.
+# See README.md for connection strings and prisma migrate ordering.
+#
+# dependencies:
+#   - name: postgresql
+#     version: "16.2.1"
+#     repository: https://charts.bitnami.com/bitnami
+#     condition: postgresql.enabled
+#   - name: redis
+#     version: "20.2.1"
+#     repository: https://charts.bitnami.com/bitnami
+#     condition: redis.enabled
+#   - name: rabbitmq
+#     version: "15.0.3"
+#     repository: https://charts.bitnami.com/bitnami
+#     condition: rabbitmq.enabled

@@ -1,0 +1,24 @@
+{
+  "name": "@eshop/integration-event-types",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Typed integration event payloads shared across publishers and consumers.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eshop/event-bus-amqp": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

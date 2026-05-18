@@ -1,0 +1,9 @@
+{
+  "Id": "dddddddd-4444-4555-a666-dddddddddddd",
+  "CreationDate": "2026-05-09T12:34:56.0000000Z",
+  "OrderId": 56,
+  "OrderStockItems": [
+    { "ProductId": 7, "HasStock": false },
+    { "ProductId": 8, "HasStock": true }
+  ]
+}

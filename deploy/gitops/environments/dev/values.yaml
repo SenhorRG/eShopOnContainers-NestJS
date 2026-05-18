@@ -1,0 +1,9 @@
+# Dev overrides — auto-sync friendly, single replica.
+global:
+  imagePullPolicy: IfNotPresent
+
+services:
+  catalog:
+    replicas: 1
+  ordering:
+    replicas: 1

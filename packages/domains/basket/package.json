@@ -1,0 +1,23 @@
+{
+  "name": "@eshop/basket-domain",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Pure basket aggregate rules aligned with reference CustomerBasket.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
+  }
+}

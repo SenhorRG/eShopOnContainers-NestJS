@@ -1,0 +1,28 @@
+{
+  "name": "@eshop/http-resilience",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Cockatiel policies and resilient Axios client factory.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "axios": "^1.16.1",
+    "cockatiel": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.8.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
+  }
+}

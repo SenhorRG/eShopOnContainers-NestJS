@@ -1,0 +1,306 @@
+# Application images (local build). Infra is in `docker-compose.yml` (profile `stack`).
+#
+# From this directory:
+#   docker compose -f docker-compose.yml -f docker-compose.stack.yml --env-file .env.stack.example --profile stack up -d --build
+#
+# Apply Prisma migrations before traffic (once per fresh volume), e.g. from repo root:
+#   identity, catalog, ordering, webhooks (DATABASE_URL → localhost:55432 / correct db name) — see README-stack.md
+
+x-eshop-compose-identification: &eshop-compose-identification
+  com.eshop.project: eshop-nestjs
+  com.eshop.orchestrator: docker-compose
+  com.eshop.stack: nestjs-monorepo
+
+x-eshop-rabbit-redis: &eshop-rabbit-redis
+  ESHOP_RABBITMQ_HOST: rabbitmq
+  ESHOP_RABBITMQ_PORT: "5672"
+  ESHOP_RABBITMQ_USERNAME: guest
+  ESHOP_RABBITMQ_PASSWORD: guest
+  ESHOP_RABBITMQ_VHOST: /
+  ESHOP_REDIS_URL: redis://redis:6379
+
+services:
+  identity-service:
+    profiles: ["stack"]
+    labels:
+      <<: *eshop-compose-identification
+      com.eshop.compose.service: identity-service
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.nest.template
+      args:
+        PNPM_FILTER: "@eshop/identity-service"
+    image: eshop/identity-service:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5051:5051"
+    environment:
+      NODE_ENV: production
+      PORT: "5051"
+      OTEL_SERVICE_NAME: identity-service
+      ESHOP_IDENTITY_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/identitydb
+      ESHOP_JWT_SYMMETRIC_SECRET: "${ESHOP_ORDERING_JWT_SECRET:-ordering-stack-secret}"
+      ESHOP_IDENTITY_ISSUER_URL: "${ESHOP_IDENTITY_ISSUER_URL:-http://127.0.0.1:5051}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:5051/api/alive >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  catalog-service:
+    profiles: ["stack"]
+    labels:
+      <<: *eshop-compose-identification
+      com.eshop.compose.service: catalog-service
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.nest.template
+      args:
+        PNPM_FILTER: "@eshop/catalog-service"
+    image: eshop/catalog-service:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "5052:5052"
+    volumes:
+      - ../../apps/catalog-service/assets/pics:/data/catalog/pics:ro
+    environment:
+      <<: *eshop-rabbit-redis
+      NODE_ENV: production
+      PORT: "5052"
+      OTEL_SERVICE_NAME: catalog-service
+      ESHOP_CATALOG_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/catalogdb
+      ESHOP_CATALOG_EMBEDDINGS_PROVIDER: "${ESHOP_CATALOG_EMBEDDINGS_PROVIDER:-off}"
+      CATALOG_PICS_PATH: /data/catalog/pics
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:5052/api/alive >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  ordering-service:
+    profiles: ["stack"]
+    labels:
+      <<: *eshop-compose-identification
+      com.eshop.compose.service: ordering-service
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.nest.template
+      args:
+        PNPM_FILTER: "@eshop/ordering-service"
+    image: eshop/ordering-service:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "5053:5053"
+    environment:
+      <<: *eshop-rabbit-redis
+      NODE_ENV: production
+      PORT: "5053"
+      OTEL_SERVICE_NAME: ordering-service
+      ESHOP_ORDERING_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/orderingdb
+      ESHOP_ORDERING_JWT_SECRET: "${ESHOP_ORDERING_JWT_SECRET:-ordering-stack-secret}"
+      ESHOP_ORDERING_AUTH_BYPASS: "${ESHOP_ORDERING_AUTH_BYPASS:-1}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:5053/api/alive >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  basket-service:
+    profiles: ["stack"]
+    labels:
+      <<: *eshop-compose-identification
+      com.eshop.compose.service: basket-service
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.nest.template
+      args:
+        PNPM_FILTER: "@eshop/basket-service"
+    image: eshop/basket-service:local
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "5054:5054"
+      - "9071:9071"
+    environment:
+      <<: *eshop-rabbit-redis
+      NODE_ENV: production
+      PORT: "5054"
+      GRPC_PORT: "9071"
+      OTEL_SERVICE_NAME: basket-service
+      ESHOP_BASKET_JWT_SECRET: "${ESHOP_BASKET_JWT_SECRET:-basket-stack-secret}"
+      ESHOP_BASKET_PROTO_PATH: /proto/basket.proto
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:5054/alive >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  webhooks-service:
+    profiles: ["stack"]
+    labels:
+      <<: *eshop-compose-identification
+      com.eshop.compose.service: webhooks-service
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.nest.template
+      args:
+        PNPM_FILTER: "@eshop/webhooks-service"
+    image: eshop/webhooks-service:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "5055:5055"
+    environment:
+      <<: *eshop-rabbit-redis
+      NODE_ENV: production
+      PORT: "5055"
+      OTEL_SERVICE_NAME: webhooks-service
+      ESHOP_WEBHOOKS_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/webhooksdb
+      ESHOP_WEBHOOKS_AUTH_BYPASS: "${ESHOP_WEBHOOKS_AUTH_BYPASS:-1}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:5055/api/alive >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+
+  order-grace-worker:
+    profiles: ["stack"]
+    labels:
+      <<: *eshop-compose-identification
+      com.eshop.compose.service: order-grace-worker
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.nest.template
+      args:
+        PNPM_FILTER: "@eshop/order-grace-worker"
+    image: eshop/order-grace-worker:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "5065:5065"
+    environment:
+      <<: *eshop-rabbit-redis
+      NODE_ENV: production
+      PORT: "5065"
+      OTEL_SERVICE_NAME: order-grace-worker
+      ESHOP_ORDERING_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/orderingdb
+
+  payment-worker:
+    profiles: ["stack"]
+    labels:
+      <<: *eshop-compose-identification
+      com.eshop.compose.service: payment-worker
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.nest.template
+      args:
+        PNPM_FILTER: "@eshop/payment-worker"
+    image: eshop/payment-worker:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "5066:5066"
+    environment:
+      <<: *eshop-rabbit-redis
+      NODE_ENV: production
+      PORT: "5066"
+      OTEL_SERVICE_NAME: payment-worker
+      ESHOP_ORDERING_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/orderingdb
+
+  mobile-bff:
+    profiles: ["stack"]
+    labels:
+      <<: *eshop-compose-identification
+      com.eshop.compose.service: mobile-bff
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.nest.template
+      args:
+        PNPM_FILTER: "@eshop/mobile-bff"
+    image: eshop/mobile-bff:local
+    restart: unless-stopped
+    depends_on:
+      identity-service:
+        condition: service_healthy
+      catalog-service:
+        condition: service_healthy
+      ordering-service:
+        condition: service_healthy
+    ports:
+      - "5070:5070"
+    environment:
+      NODE_ENV: production
+      PORT: "5070"
+      OTEL_SERVICE_NAME: mobile-bff
+      ESHOP_BFF_PROXY_CATALOG_URL: http://catalog-service:5052
+      ESHOP_BFF_PROXY_ORDERING_URL: http://ordering-service:5053
+      ESHOP_BFF_PROXY_IDENTITY_ENABLED: "${ESHOP_BFF_PROXY_IDENTITY_ENABLED:-true}"
+      ESHOP_BFF_PROXY_IDENTITY_URL: "${ESHOP_BFF_PROXY_IDENTITY_URL:-http://identity-service:5051}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:5070/alive >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  storefront-web:
+    profiles: ["stack"]
+    labels:
+      <<: *eshop-compose-identification
+      com.eshop.compose.service: storefront-web
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.storefront
+      args:
+        VITE_ESHOP_IDENTITY_ORIGIN: "${VITE_ESHOP_IDENTITY_ORIGIN:-http://127.0.0.1:5051}"
+        VITE_ESHOP_CATALOG_ORIGIN: "${VITE_ESHOP_CATALOG_ORIGIN:-http://127.0.0.1:5052}"
+        VITE_ESHOP_ORDERING_ORIGIN: "${VITE_ESHOP_ORDERING_ORIGIN:-http://127.0.0.1:5053}"
+    image: eshop/storefront-web:local
+    restart: unless-stopped
+    depends_on:
+      identity-service:
+        condition: service_healthy
+      catalog-service:
+        condition: service_healthy
+      ordering-service:
+        condition: service_healthy
+      mobile-bff:
+        condition: service_healthy
+    ports:
+      - "8080:8080"

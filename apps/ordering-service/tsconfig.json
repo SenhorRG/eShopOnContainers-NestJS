@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
+    "baseUrl": ".",
+    "paths": {
+      "@eshop/event-bus-amqp/nest": ["../../packages/infrastructure/event-bus-amqp/dist/nest/index"],
+      "@ordering/prisma-client": ["./src/generated/ordering-prisma"]
+    }
+  },
+  "include": ["src/**/*"]
+}

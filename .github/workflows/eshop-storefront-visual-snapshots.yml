@@ -1,0 +1,45 @@
+name: eshop-storefront-visual-snapshots
+
+# Optional: regenerate Playwright screenshots on Linux (recommended baseline for CI).
+# Download the artifact and merge `*-chromium-linux.png` files into `tests/e2e/specs/storefront-visual.spec.ts-snapshots/`.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  capture-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.0"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build storefront
+        run: pnpm --filter @eshop/storefront-web run build
+
+      - name: Install Playwright (Chromium)
+        run: pnpm --filter @eshop/e2e-tests exec playwright install chromium --with-deps
+
+      - name: Preview + update snapshots
+        env:
+          E2E_RUN_VISUAL: "1"
+          E2E_STOREFRONT_ORIGIN: "http://127.0.0.1:5173"
+        run: |
+          pnpm --filter @eshop/storefront-web exec vite preview --host 127.0.0.1 --port 5173 --strictPort &
+          for i in $(seq 1 45); do curl -sf http://127.0.0.1:5173/ >/dev/null && break; sleep 1; done
+          cd tests/e2e && pnpm exec playwright test specs/storefront-visual.spec.ts --update-snapshots
+
+      - name: Upload snapshot PNGs
+        uses: actions/upload-artifact@v4
+        with:
+          name: storefront-visual-linux-snapshots
+          path: tests/e2e/specs/storefront-visual.spec.ts-snapshots/

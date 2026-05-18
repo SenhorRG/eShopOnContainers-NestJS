@@ -1,0 +1,5 @@
+[
+  { "email": "alicesmith@email.com", "displayName": "Alice Smith" },
+  { "email": "bobsmith@email.com", "displayName": "Bob Smith" },
+  { "email": "webhooks-dev@eshop.local", "displayName": "Webhooks Dev" }
+]

@@ -1,0 +1,22 @@
+{
+  "name": "@eshop/integration-tests",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@eshop/inbox": "workspace:*",
+    "@types/amqplib": "^0.10.7",
+    "amqplib": "^0.10.5",
+    "@types/node": "^22.13.14",
+    "@types/pg": "^8.20.0",
+    "ioredis": "^5.10.1",
+    "pg": "^8.20.0",
+    "testcontainers": "^11.14.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
+  }
+}

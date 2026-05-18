@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/ordering-prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ESHOP_ORDERING_DATABASE_URL")
+  schemas  = ["ordering"]
+}
+
+model OrderingBuyer {
+  Id           Int                     @id @default(autoincrement())
+  IdentityGuid String                  @unique @db.VarChar(200)
+  Name         String?                 @db.Text
+  payments     OrderingPaymentMethod[]
+  orders       OrderingOrder[]
+
+  @@map("buyers")
+  @@schema("ordering")
+}
+
+model OrderingCardType {
+  Id       Int                     @id
+  Name     String                  @db.VarChar(200)
+  payments OrderingPaymentMethod[]
+
+  @@map("cardtypes")
+  @@schema("ordering")
+}
+
+model OrderingPaymentMethod {
+  Id             Int               @id @default(autoincrement())
+  BuyerId        Int
+  Alias          String            @db.VarChar(200)
+  CardHolderName String            @db.VarChar(200)
+  CardNumber     String            @db.VarChar(25)
+  Expiration     DateTime          @db.Timestamptz(6)
+  CardTypeId     Int
+  buyer          OrderingBuyer     @relation(fields: [BuyerId], references: [Id], onDelete: Cascade)
+  cardType       OrderingCardType  @relation(fields: [CardTypeId], references: [Id], onDelete: Cascade)
+  orders         OrderingOrder[]
+
+  @@index([BuyerId])
+  @@index([CardTypeId])
+  @@map("paymentmethods")
+  @@schema("ordering")
+}
+
+model OrderingOrder {
+  Id               Int                    @id @default(autoincrement())
+  BuyerId          Int?
+  PaymentMethodId Int?
+  OrderDate        DateTime               @db.Timestamptz(6)
+  OrderStatus      String                 @db.VarChar(30)
+  Description      String?                @db.Text
+  Street           String?                @db.Text
+  City             String?                @db.Text
+  State            String?                @db.Text
+  Country          String?                @db.Text
+  ZipCode          String?                @db.Text
+  buyer            OrderingBuyer?         @relation(fields: [BuyerId], references: [Id])
+  paymentMethod    OrderingPaymentMethod? @relation(fields: [PaymentMethodId], references: [Id], onDelete: Restrict)
+  orderItems       OrderingOrderItem[]
+
+  @@index([BuyerId])
+  @@index([PaymentMethodId])
+  @@map("orders")
+  @@schema("ordering")
+}
+
+model OrderingOrderItem {
+  Id          Int           @id @default(autoincrement())
+  OrderId     Int
+  ProductId   Int
+  Discount    Decimal       @db.Decimal(18, 4)
+  PictureUrl  String?       @db.Text
+  ProductName String        @db.Text
+  UnitPrice   Decimal       @db.Decimal(18, 4)
+  Units       Int
+  order       OrderingOrder @relation(fields: [OrderId], references: [Id], onDelete: Cascade)
+
+  @@index([OrderId])
+  @@map("orderItems")
+  @@schema("ordering")
+}
+
+model OrderingClientRequest {
+  Id   String   @id @db.Uuid
+  Name String   @db.Text
+  Time DateTime @db.Timestamptz(6)
+
+  @@map("requests")
+  @@schema("ordering")
+}
+
+model ProcessedIntegrationEventRow {
+  id                 String   @id @default(uuid()) @db.Uuid
+  integrationEventId String   @map("integration_event_id") @db.Uuid
+  consumerName       String   @map("consumer_name") @db.VarChar(200)
+  processedAt        DateTime @default(now()) @map("processed_at") @db.Timestamptz(6)
+
+  @@unique([integrationEventId, consumerName], map: "processed_integration_events_event_consumer_key")
+  @@map("processed_integration_events")
+  @@schema("ordering")
+}

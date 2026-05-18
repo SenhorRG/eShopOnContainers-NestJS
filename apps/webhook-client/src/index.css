@@ -1,0 +1,28 @@
+@import '../../../packages/infrastructure/ui/src/styles/theme-tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.webhook-ui-panel {
+  margin: 1rem 0;
+  max-width: 32rem;
+  padding: 1rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+}
+
+.webhook-ui-panel label {
+  margin-bottom: 0.75rem;
+}
+
+.webhook-ui-panel .ui-field {
+  margin-top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
